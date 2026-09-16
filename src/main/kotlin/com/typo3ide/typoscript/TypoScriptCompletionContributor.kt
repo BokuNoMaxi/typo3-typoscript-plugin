@@ -6,37 +6,13 @@ import com.intellij.codeInsight.completion.CompletionProvider
 import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.lang.ASTNode
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import com.intellij.psi.TokenType
 import com.intellij.util.ProcessingContext
 
 private val PAGE_TS_CATEGORIES = setOf("PageTSConfig", "UserTSConfig")
 private val UNTYPED_BLOCK_CATEGORIES = setOf("ContentObject", "Function", "Condition", "DataProcessing")
-
-/** TypoScript object keyword (`page.10 = TEXT`) -> the doc category/group of its properties. */
-private val OBJECT_TYPES: Map<String, Pair<String, String>> = mapOf(
-    "PAGE" to ("TopLevelObject" to "Page"),
-    "TEXT" to ("ContentObject" to "Text"),
-    "HMENU" to ("ContentObject" to "Hmenu"),
-    "TMENU" to ("ContentObject" to "Hmenu.Tmenu"),
-    "IMAGE" to ("ContentObject" to "Image"),
-    "IMG_RESOURCE" to ("ContentObject" to "ImgResource"),
-    "FILES" to ("ContentObject" to "Files"),
-    "CONTENT" to ("ContentObject" to "Content"),
-    "RECORDS" to ("ContentObject" to "Records"),
-    "CASE" to ("ContentObject" to "Case"),
-    "COA" to ("ContentObject" to "CoaAndCoaInt"),
-    "COA_INT" to ("ContentObject" to "CoaAndCoaInt"),
-    "USER" to ("ContentObject" to "UserAndUserInt"),
-    "USER_INT" to ("ContentObject" to "UserAndUserInt"),
-    "FLUIDTEMPLATE" to ("ContentObject" to "Fluidtemplate"),
-    "SVG" to ("ContentObject" to "Svg"),
-    "PAGEVIEW" to ("ContentObject" to "Pageview"),
-    "LOAD_REGISTER" to ("ContentObject" to "LoadRegister"),
-)
 
 class TypoScriptCompletionContributor : CompletionContributor() {
     init {
@@ -99,9 +75,9 @@ class TypoScriptCompletionContributor : CompletionContributor() {
         var node = file.node.firstChildNode
         while (node != null) {
             if (node.elementType == TypoScriptTokenTypes.IDENTIFIER && node.text == path) {
-                val eq = nextSignificant(node)
+                val eq = TypoScriptBlocks.nextSignificant(node)
                 if (eq != null && eq.elementType == TypoScriptTokenTypes.OPERATOR && eq.text == "=") {
-                    val value = nextSignificant(eq)
+                    val value = TypoScriptBlocks.nextSignificant(eq)
                     if (value != null && value.elementType == TypoScriptTokenTypes.IDENTIFIER) {
                         OBJECT_TYPES[value.text.uppercase()]?.let { return it }
                     }
@@ -110,11 +86,5 @@ class TypoScriptCompletionContributor : CompletionContributor() {
             node = node.treeNext
         }
         return null
-    }
-
-    private fun nextSignificant(node: ASTNode): ASTNode? {
-        var cur = node.treeNext
-        while (cur != null && cur.elementType == TokenType.WHITE_SPACE) cur = cur.treeNext
-        return cur
     }
 }

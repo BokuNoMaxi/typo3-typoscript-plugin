@@ -27,10 +27,19 @@ object TypoScriptBlocks {
         return null
     }
 
-    fun selectorBefore(lbrace: ASTNode?): String? {
-        var cur = lbrace?.treePrev
+    fun selectorBefore(lbrace: ASTNode?): String? =
+        prevSignificant(lbrace)?.takeIf { it.elementType == TypoScriptTokenTypes.IDENTIFIER }?.text
+
+    fun prevSignificant(node: ASTNode?): ASTNode? {
+        var cur = node?.treePrev
         while (cur != null && cur.elementType == TokenType.WHITE_SPACE) cur = cur.treePrev
-        return cur?.takeIf { it.elementType == TypoScriptTokenTypes.IDENTIFIER }?.text
+        return cur
+    }
+
+    fun nextSignificant(node: ASTNode?): ASTNode? {
+        var cur = node?.treeNext
+        while (cur != null && cur.elementType == TokenType.WHITE_SPACE) cur = cur.treeNext
+        return cur
     }
 
     /** Dotted path of the block enclosing [element], outermost segment first. Empty at global scope. */
