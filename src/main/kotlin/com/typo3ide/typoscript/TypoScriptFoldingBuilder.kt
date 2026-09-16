@@ -10,32 +10,37 @@ import com.intellij.psi.PsiElement
 /**
  * The parser only produces a flat token stream (see TypoScriptParserDefinition), so
  * there are no nested block PSI elements to fold. Fold regions are found by matching
- * LBRACE/RBRACE tokens with a stack instead.
+ * LBRACE/RBRACE and LPAREN/RPAREN tokens with a stack instead. Parens fold too since
+ * TypoScript uses `key (` ... `)` for multiline values.
  */
 class TypoScriptFoldingBuilder : FoldingBuilderEx() {
     override fun buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array<FoldingDescriptor> {
         val descriptors = mutableListOf<FoldingDescriptor>()
-        val openStack = ArrayDeque<ASTNode>()
+        val braceStack = ArrayDeque<ASTNode>()
+        val parenStack = ArrayDeque<ASTNode>()
         var node = root.node.firstChildNode
         while (node != null) {
             when (node.elementType) {
-                TypoScriptTokenTypes.LBRACE -> openStack.addLast(node)
-                TypoScriptTokenTypes.RBRACE -> {
-                    val open = openStack.removeLastOrNull()
-                    if (open != null) {
-                        val range = TextRange(open.startOffset, node.startOffset + node.textLength)
-                        if (document.getLineNumber(range.startOffset) != document.getLineNumber(range.endOffset)) {
-                            descriptors += FoldingDescriptor(open, range)
-                        }
-                    }
-                }
+                TypoScriptTokenTypes.LBRACE -> braceStack.addLast(node)
+                TypoScriptTokenTypes.RBRACE -> closeRegion(descriptors, braceStack, node, document)
+                TypoScriptTokenTypes.LPAREN -> parenStack.addLast(node)
+                TypoScriptTokenTypes.RPAREN -> closeRegion(descriptors, parenStack, node, document)
             }
             node = node.treeNext
         }
         return descriptors.toTypedArray()
     }
 
-    override fun getPlaceholderText(node: ASTNode): String = "{...}"
+    private fun closeRegion(descriptors: MutableList<FoldingDescriptor>, stack: ArrayDeque<ASTNode>, close: ASTNode, document: Document) {
+        val open = stack.removeLastOrNull() ?: return
+        val range = TextRange(open.startOffset, close.startOffset + close.textLength)
+        if (document.getLineNumber(range.startOffset) != document.getLineNumber(range.endOffset)) {
+            descriptors += FoldingDescriptor(open, range)
+        }
+    }
+
+    override fun getPlaceholderText(node: ASTNode): String =
+        if (node.elementType == TypoScriptTokenTypes.LPAREN) "(...)" else "{...}"
 
     override fun isCollapsedByDefault(node: ASTNode): Boolean = false
 }

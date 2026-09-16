@@ -7,16 +7,85 @@ plugin.tx_myext.settings {
     foo = bar
     baz = "quoted value"
     single = 'single quoted'
+
+    subsettings {
+        nested = value
+        deeper {
+            evenMoreNested = 1
+        }
+    }
 }
 
 page = PAGE
 page.10 = TEXT
 page.10.value = Hello world
+page.10.value (
+    This is a
+    multiline value
+    spanning several lines
+)
+
+page.20 = HMENU
+page.20 {
+    1 = TMENU
+    1 {
+        NO {
+            allWrap = <li>|</li>
+        }
+    }
+    2 = TMENU
+    2 {
+        NO.allWrap = <li class="sub">|</li>
+    }
+}
+
+page.30 = IMAGE
+page.30 {
+    file = fileadmin/images/logo.png
+    file.width = 200
+}
+
+page.40 = FLUIDTEMPLATE
+page.40 {
+    templateName = Default
+    templateRootPaths {
+        10 = EXT:myext/Resources/Private/Templates/
+    }
+    dataProcessing {
+        10 = files
+        10 {
+            references.fieldName = media
+        }
+        20 = TYPO3\CMS\Frontend\DataProcessing\MenuProcessor
+        20 {
+            special = directory
+            special.value = 12
+        }
+    }
+}
 
 lib.contentElement < styles.content.get
 styles.content =< lib.contentElement
 lib.dynamicList.stdWrap.wrap := addToList(<div>|</div>)
 
+lib.longValue = TEXT
+lib.longValue.value (
+    Line one of a long multiline text value.
+    Line two continues here.
+    Line three still going.
+    Line four, almost done.
+    Line five, the end.
+)
+
+config.no_cache = 0
+config.doctype = html5
+config.debug = 0
+
 [applicationContext == "Production"]
     config.contentObjectExceptionHandler = 0
+[global][END]
+
+[applicationContext == "Development"]
+    config.contentObjectExceptionHandler = 1
+    config.debug = 1
 [global][END]

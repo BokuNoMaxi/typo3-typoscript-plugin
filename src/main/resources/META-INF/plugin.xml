@@ -22,6 +22,7 @@
         <lang.parserDefinition language="TypoScript" implementationClass="com.typo3ide.typoscript.TypoScriptParserDefinition"/>
         <lang.syntaxHighlighterFactory language="TypoScript" implementationClass="com.typo3ide.typoscript.TypoScriptSyntaxHighlighterFactory"/>
         <lang.foldingBuilder language="TypoScript" implementationClass="com.typo3ide.typoscript.TypoScriptFoldingBuilder"/>
+        <breadcrumbsInfoProvider implementation="com.typo3ide.typoscript.TypoScriptBreadcrumbsProvider"/>
         <completion.contributor language="any" implementationClass="com.typo3ide.typoscript.TypoScriptCompletionContributor"/>
         <lang.documentationProvider language="any" implementationClass="com.typo3ide.typoscript.TypoScriptDocumentationProvider"/>
     </extensions>

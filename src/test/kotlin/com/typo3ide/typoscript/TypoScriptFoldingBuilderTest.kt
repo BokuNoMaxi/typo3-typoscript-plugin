@@ -23,4 +23,23 @@ class TypoScriptFoldingBuilderTest : BasePlatformTestCase() {
         assertEquals(2, descriptors.size)
         assertTrue(descriptors.all { it.getElement().elementType == TypoScriptTokenTypes.LBRACE })
     }
+
+    fun testMultilineParensFold() {
+        val psiFile = myFixture.configureByText(
+            "setup.txt",
+            """
+            page.10.value (
+                line one
+                line two
+            )
+            single = (not multi-line)
+            """.trimIndent()
+        )
+
+        val descriptors = TypoScriptFoldingBuilder().buildFoldRegions(psiFile, myFixture.editor.document, false)
+
+        assertEquals(1, descriptors.size)
+        assertEquals(TypoScriptTokenTypes.LPAREN, descriptors[0].getElement().elementType)
+        assertEquals("(...)", TypoScriptFoldingBuilder().getPlaceholderText(descriptors[0].getElement()))
+    }
 }
