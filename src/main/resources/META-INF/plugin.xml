@@ -1,0 +1,27 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.typo3ide.typoscript</id>
+    <name>TYPO3 TypoScript &amp; PageTS</name>
+    <vendor>typo3ide</vendor>
+    <description><![CDATA[
+        <p>Autocomplete and quick documentation for TypoScript, PageTS and UserTS properties in PhpStorm.</p>
+        <p>Property names, types and descriptions are extracted at build time from the official
+        <a href="https://github.com/TYPO3-Documentation/TYPO3CMS-Reference-Typoscript">TYPO3 TypoScript reference</a>
+        sources (the same ones docs.typo3.org is built from) &mdash; no bundled paid data, no network access at runtime.</p>
+        <p>Recognizes <code>.typoscript</code>, <code>.tsconfig</code>, <code>setup.txt</code>, <code>constants.txt</code>
+        and PageTS/UserTS config files.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="TypoScript" implementationClass="com.typo3ide.typoscript.TypoScriptFileType"
+                  fieldName="INSTANCE" language="TypoScript"
+                  extensions="typoscript;tsconfig"
+                  fileNames="setup.txt;constants.txt;page.tsconfig;user.tsconfig"/>
+        <lang.parserDefinition language="TypoScript" implementationClass="com.typo3ide.typoscript.TypoScriptParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="TypoScript" implementationClass="com.typo3ide.typoscript.TypoScriptSyntaxHighlighterFactory"/>
+        <completion.contributor language="any" implementationClass="com.typo3ide.typoscript.TypoScriptCompletionContributor"/>
+        <lang.documentationProvider language="any" implementationClass="com.typo3ide.typoscript.TypoScriptDocumentationProvider"/>
+    </extensions>
+</idea-plugin>

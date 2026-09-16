@@ -1,0 +1,2 @@
+# Classic filename-based detection (no extension, matched by name)
+config.no_cache = 0

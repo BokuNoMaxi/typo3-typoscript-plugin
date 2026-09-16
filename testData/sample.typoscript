@@ -1,0 +1,22 @@
+# Line comment (hash style)
+// Line comment (slash style)
+/* Block
+   comment */
+
+plugin.tx_myext.settings {
+    foo = bar
+    baz = "quoted value"
+    single = 'single quoted'
+}
+
+page = PAGE
+page.10 = TEXT
+page.10.value = Hello world
+
+lib.contentElement < styles.content.get
+styles.content =< lib.contentElement
+lib.dynamicList.stdWrap.wrap := addToList(<div>|</div>)
+
+[applicationContext == "Production"]
+    config.contentObjectExceptionHandler = 0
+[global][END]
